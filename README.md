@@ -30,4 +30,8 @@ You can see the file `example.py` to see how you can start using this scraper. J
 
 ## Result Data
 
-The script will be create a csv file with any stock symbol you scrape.
+The script will be create a csv file or in stock.db (sqllite3) with any stock symbol you scrape.
+
+## Usage Tips
+
+Use vps server and then run using crontab, so you can scrape regularly for example every 5 minutes
