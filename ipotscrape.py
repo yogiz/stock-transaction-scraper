@@ -1,15 +1,10 @@
 from bs4 import BeautifulSoup as bs
 import pandas as pd
 import requests, time, pendulum, os
-import json
+from db import insert_data
 
 datahead = ['time','price','open','high','low','avg','lot','change','b1','b2','b3','b4','b5','b6','bl1','bl2','bl3','bl4','bl5','bl6','o1','o2','o3','o4','o5','o6','ol1','ol2','ol3','ol4','ol5','ol6','btotal','ototal']
 datahead_str = 'time,price,open,high,low,avg,lot,change,b1,b2,b3,b4,b5,b6,bl1,bl2,bl3,bl4,bl5,bl6,o1,o2,o3,o4,o5,o6,ol1,ol2,ol3,ol4,ol5,ol6,btotal,ototal'
-
-def get_config() :
-    with open('config.json') as f:
-        conf = json.load(f)
-    return(conf)
 
 def get_data(simbol):
 
@@ -68,11 +63,11 @@ def get_data(simbol):
     return dresult
 
 
-def cek_jam_trading(waktu) :
+def cek_jam_trading(curTime) :
 
-    waktu = pendulum.from_timestamp(waktu, 'Asia/Jakarta')
-    hari  = int(waktu.strftime('%w'))
-    jam = int(waktu.strftime('%H%M'))
+    curTime = pendulum.from_timestamp(curTime, 'Asia/Jakarta')
+    hari  = int(curTime.strftime('%w'))
+    jam = int(curTime.strftime('%H%M'))
 
     if hari > 0 and hari < 5 :
         if jam >= 900 and jam <= 1200 :
@@ -92,21 +87,27 @@ def cek_jam_trading(waktu) :
     else:
         return False
 
-def ipot_scrape(simbol):
-    
-    file_ada = os.path.isfile(f'{simbol}.csv')
+def scrape_to_csv(symbol):
+    file_ada = os.path.isfile(f'{symbol}.csv')
     if  file_ada == False :
-        with open(f'{simbol}.csv', 'w') as f:
+        with open(f'{symbol}.csv', 'w') as f:
             f.write(datahead_str + '\n')
 
     now = int(time.time())
 
     if cek_jam_trading(now) :
-        result = get_data(simbol)
+        result = get_data(symbol)
         # print(result)
-        with open(f'{simbol}.csv', 'a') as f:
+        with open(f'{symbol}.csv', 'a') as f:
             for sell in result:
                 f.write(str(sell))
                 if sell != result[-1]:
                     f.write(',')
             f.write('\n')
+
+def scrape_to_db(symbol):
+    data = get_data(symbol)
+    data = tuple(data)
+    result = tuple(int(el) for el in data)
+    insert_data(symbol, result)
+
