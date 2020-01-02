@@ -106,8 +106,10 @@ def scrape_to_csv(symbol):
             f.write('\n')
 
 def scrape_to_db(symbol):
-    data = get_data(symbol)
-    data = tuple(data)
-    result = tuple(int(el) for el in data)
-    insert_data(symbol, result)
+    now = int(time.time())
+    if cek_jam_trading(now) :
+        data = get_data(symbol)
+        data = tuple(data)
+        result = tuple(int(el) for el in data)
+        insert_data(symbol, result)
 
