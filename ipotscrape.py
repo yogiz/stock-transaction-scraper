@@ -44,27 +44,41 @@ def get_data(simbol):
 
     for i in range(6):
         data = df_deep.at[i,'BidLot' ]
-        dresult.append(data)
+        dresult.append(int(data))
 
     for i in range(6):
         data = df_deep.at[i,'Offer' ]
-        dresult.append(data)
+        dresult.append(int(data))
 
     for i in range(6):
         data = df_deep.at[i,'OffLot' ]
-        dresult.append(data)
+        dresult.append(int(data))
 
     last = df_deep[-1:]
     btotal = last['BidLot'].values
-    dresult.append(int(btotal))
     ototal = last['OffLot'].values
+
+    # convert total if more than million
+    btotal = check_million(btotal)
+    ototal = check_million(ototal)
+
+    dresult.append(int(btotal))
     dresult.append(int(ototal))
 
     return dresult
 
+def check_million(data):
+    if (isinstance(data[0], str)):
+        string = data[0].replace(' M','')
+        result = float(string) * 1000000
+    else :
+        result = data
+    return result
+    
 
-def cek_jam_trading(curTime) :
+def cek_jam_trading() :
 
+    curTime = int(time.time())
     curTime = pendulum.from_timestamp(curTime, 'Asia/Jakarta')
     hari  = int(curTime.strftime('%w'))
     jam = int(curTime.strftime('%H%M'))
@@ -93,23 +107,16 @@ def scrape_to_csv(symbol):
         with open(f'{symbol}.csv', 'w') as f:
             f.write(datahead_str + '\n')
 
-    now = int(time.time())
-
-    if cek_jam_trading(now) :
-        result = get_data(symbol)
-        # print(result)
-        with open(f'{symbol}.csv', 'a') as f:
-            for sell in result:
-                f.write(str(sell))
-                if sell != result[-1]:
-                    f.write(',')
-            f.write('\n')
+    result = get_data(symbol)
+    with open(f'{symbol}.csv', 'a') as f:
+        for sell in result:
+            f.write(str(sell))
+            if sell != result[-1]:
+                f.write(',')
+        f.write('\n')
 
 def scrape_to_db(symbol):
-    now = int(time.time())
-    if cek_jam_trading(now) :
-        data = get_data(symbol)
-        data = tuple(data)
-        result = tuple(int(el) for el in data)
-        insert_data(symbol, result)
-
+    data = get_data(symbol)
+    data = tuple(data)
+    result = tuple(int(el) for el in data)
+    insert_data(symbol, result)
