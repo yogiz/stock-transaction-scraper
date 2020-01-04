@@ -79,13 +79,16 @@ def check_million(data):
     return result
     
 
-def cek_jam_trading() :
+def cek_jam_trading(holiday) :
 
     curTime = int(time.time())
     curTime = pendulum.from_timestamp(curTime, 'Asia/Jakarta')
     hari  = int(curTime.strftime('%w'))
     jam = int(curTime.strftime('%H%M'))
-
+    tgl_bulan = int(curTime.strftime('%m%d'))
+    
+    if tgl_bulan in holiday :
+        return False
     if hari > 0 and hari < 5 :
         if jam >= 900 and jam <= 1200 :
             return True
@@ -129,9 +132,9 @@ def write_log(message) :
 		now = ctime()
 		f.writelines(now + '  -  '+ message + '\n')
 
-def run_scraper(symbols, mode, check_market_time):
+def run_scraper(symbols, mode, check_market_time, holiday):
     if (check_market_time) :
-        isTime = cek_jam_trading()
+        isTime = cek_jam_trading(holiday)
     else :
         isTime = True
 
