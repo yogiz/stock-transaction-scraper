@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as bs
 import pandas as pd
 import requests, time, pendulum, os
 from db import insert_data
+from time import ctime
 
 datahead = ['time','price','open','high','low','avg','lot','change','b1','b2','b3','b4','b5','b6','bl1','bl2','bl3','bl4','bl5','bl6','o1','o2','o3','o4','o5','o6','ol1','ol2','ol3','ol4','ol5','ol6','btotal','ototal']
 datahead_str = 'time,price,open,high,low,avg,lot,change,b1,b2,b3,b4,b5,b6,bl1,bl2,bl3,bl4,bl5,bl6,o1,o2,o3,o4,o5,o6,ol1,ol2,ol3,ol4,ol5,ol6,btotal,ototal'
@@ -25,8 +26,10 @@ def get_data(simbol):
     high = int(df_umum.iloc[1,4])
     low = int(df_umum.iloc[2,4])
     avg = int(df_umum.iloc[2,7])
-    lot = int(df_umum.iloc[0,7])
     change = df_umum.iloc[2,1]
+    check_lot = check_million(df_umum.iloc[0,7])
+    lot = int(check_lot)
+
 
     dresult = [now,price,open_data,high,low,avg,lot,change,]
 
@@ -120,3 +123,34 @@ def scrape_to_db(symbol):
     data = tuple(data)
     result = tuple(int(el) for el in data)
     insert_data(symbol, result)
+
+def write_log(message) :
+	with open('scraper.log', 'a') as f :
+		now = ctime()
+		f.writelines(now + '  -  '+ message + '\n')
+
+def run_scraper(symbols, mode, check_market_time):
+    if (check_market_time) :
+        isTime = cek_jam_trading()
+    else :
+        isTime = True
+
+    if (isTime) :
+        try :
+            for symbol in symbols :
+                if(mode == 0) :
+                    scrape_to_db(symbol)
+                elif (mode == 1) :
+                    scrape_to_csv(symbol)
+                else :
+                    write_log('wrong mode!')
+            if (mode == 0) :    
+                write_log('success scrape to db')
+            elif (mode == 1) :
+                write_log('success scrape to csv')
+
+        except :
+            write_log('Error!')
+
+    else :
+        write_log('market still close')
