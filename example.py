@@ -6,5 +6,5 @@ symbols = ['adhi','adro','akra','antm','asii','asri','bbca','bbni','bbri','bbtn'
 check_market_time = True
 holiday = [104,325,410,501,507,521,522,525,526,527,601,731,817,820,1029,1224,1225,1231] # holiday calender in a year (month - day) ex: holiday session in indonesia 2020
 
-run_scraper(symbols, mode, check_market_time)
+run_scraper(symbols, mode, check_market_time, holiday)
 
