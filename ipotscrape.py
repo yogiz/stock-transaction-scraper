@@ -147,13 +147,13 @@ def run_scraper(symbols, mode, check_market_time, holiday):
                     scrape_to_csv(symbol)
                 else :
                     write_log('wrong mode!')
-            if (mode == 0) :    
-                write_log('success scrape to db')
-            elif (mode == 1) :
-                write_log('success scrape to csv')
+#             if (mode == 0) :    
+#                 write_log('success scrape to db')
+#             elif (mode == 1) :
+#                 write_log('success scrape to csv')
 
         except :
             write_log('Error!')
 
-    else :
-        write_log('market still close')
+#     else :
+#         write_log('market still close')
